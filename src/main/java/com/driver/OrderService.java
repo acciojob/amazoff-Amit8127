@@ -74,7 +74,21 @@ public class OrderService {
     private String timeIntegerToString(int time) {
         int min = time % 60;
         int hr = time / 60;
-        return Integer.toString(hr) + ":" + Integer.toString(min);
+
+        String hours;
+        if(hr < 10) {
+            hours = "0"+ Integer.toString(hr);
+        } else {
+            hours = Integer.toString(hr);
+        }
+
+        String minutes;
+        if(min < 10) {
+            minutes = "0"+ Integer.toString(min);
+        } else {
+            minutes = Integer.toString(min);
+        }
+        return hours + ":" + minutes;
     }
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
         int countOfOrders = 0;
