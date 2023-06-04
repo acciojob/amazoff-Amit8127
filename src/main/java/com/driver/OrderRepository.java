@@ -7,8 +7,10 @@ public class OrderRepository {
     private Map<String, Order> orders = new HashMap<>();
     private Map<String, DeliveryPartner> deliveryPartners = new HashMap<>();
     private Map<String, List<String>> ordersOfPartner = new HashMap<>();
+    private Set<String> assingedOrders = new HashSet<>();
     public void addOrder(Order order) {
         orders.put(order.getId(), order);
+        assingedOrders.add(order.getId());
     }
 
     public void addPartner(String partnerId) {
@@ -51,14 +53,10 @@ public class OrderRepository {
         return new ArrayList<>(orders.keySet());
     }
 
-    public Optional<String> getPartnersOfOrders(String orderId) {
-        if(ordersOfPartner.containsKey(orderId)){
-            Optional.of(ordersOfPartner.get(orderId));
-        }
-        return Optional.empty();
-    }
-
     public void deletePartnerById(String partnerId) {
+        if(!ordersOfPartner.isEmpty()) {
+            assingedOrders.addAll(ordersOfPartner.get(partnerId));
+        }
         deliveryPartners.remove(partnerId);
         ordersOfPartner.remove(partnerId);
     }
@@ -67,11 +65,27 @@ public class OrderRepository {
         deliveryPartners.put(partner.getId(), partner);
     }
 
-    public void deleteOrder(String orderId) {
-        orders.remove(orderId);
+    public void unAssignedOrder(String orderId) {
+        assingedOrders.remove(orderId);
     }
 
-    public List<String> getPartnersListOrders() {
-        return new ArrayList<>(ordersOfPartner.keySet());
+    public void deleteOrderById(String orderId) {
+        if(orders.containsKey(orderId)){
+            if(assingedOrders.contains(orderId)){
+                assingedOrders.remove(orderId);
+            }
+            else{
+                for(String str : ordersOfPartner.keySet()){
+                    List<String> list = ordersOfPartner.get(str);
+                    if(list.contains(orderId)){
+                        list.remove(orderId);
+                    }
+                }
+            }
+        }
+    }
+
+    public Integer getCountOfUnassignedOrders() {
+        return assingedOrders.size();
     }
 }

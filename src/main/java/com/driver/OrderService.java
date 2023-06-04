@@ -32,6 +32,7 @@ public class OrderService {
         DeliveryPartner partner = deliveryPartnerOpt.get();
         partner.setNumberOfOrders(order.size());
         orderRepository.addPartners(partner);
+        orderRepository.unAssignedOrder(orderId);
         orderRepository.addOrderPartnerPair(partnerId, order);
     }
 
@@ -70,18 +71,7 @@ public class OrderService {
     }
 
     public Integer getCountOfUnassignedOrders() {
-        List<String> partnerListOfOrders = orderRepository.getPartnersListOrders();
-        List<String> orders = orderRepository.getAllOrders();
-        int count = 0;
-        for(String partner : partnerListOfOrders) {
-            List<String> orderList = orderRepository.getOrdersOfPartner(partner);
-            for(String order : orderList) {
-                if(orders.contains(order)) {
-                    count++;
-                }
-            }
-        }
-        return orders.size() - count;
+        return orderRepository.getCountOfUnassignedOrders();
     }
 
     private int timeStringToInteger(String time) {
@@ -109,6 +99,7 @@ public class OrderService {
         return hours + ":" + minutes;
     }
     public Integer getOrdersLeftAfterGivenTimeByPartnerId(String time, String partnerId) {
+
         int countOfOrders = 0;
         List<String> orders = orderRepository.getOrdersOfPartner(partnerId);
         int endTime = timeStringToInteger(time);
@@ -124,11 +115,14 @@ public class OrderService {
     public String getLastDeliveryTimeByPartnerId(String partnerId) {
         List<String> orders = orderRepository.getOrdersOfPartner(partnerId);
         int time = Integer.MIN_VALUE;
+        String ansTime = "00:00";
+        if(orders.isEmpty()) return ansTime;
         for(String order : orders) {
             Order order1 = orderRepository.getOrderById(order).get();
             time = Math.max(time, order1.getDeliveryTime());
         }
-        return timeIntegerToString(time);
+        ansTime = timeIntegerToString(time);
+        return ansTime;
     }
 
     public void deletePartnerById(String partnerId) {
@@ -136,11 +130,6 @@ public class OrderService {
     }
 
     public void deleteOrderById(String orderId) {
-        Optional<String> partnerListOfOrdersOpt = orderRepository.getPartnersOfOrders(orderId);
-        orderRepository.deleteOrder(orderId);
-        if(partnerListOfOrdersOpt.isPresent()) {
-            List<String> orders = orderRepository.getOrdersOfPartner(partnerListOfOrdersOpt.get());
-            orders.remove(orderId);
-        }
+        orderRepository.deleteOrderById(orderId);
     }
 }
