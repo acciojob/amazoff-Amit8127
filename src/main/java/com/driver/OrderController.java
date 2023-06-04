@@ -34,23 +34,35 @@ public class OrderController {
 
     @PutMapping("/add-order-partner-pair")
     public ResponseEntity<String> addOrderPartnerPair(@RequestParam String orderId, @RequestParam String partnerId){
-        orderService.addOrderPartnerPair(orderId, partnerId);
-        //This is basically assigning that order to that partnerId
-        return new ResponseEntity<>("New order-partner pair added successfully", HttpStatus.CREATED);
+        try {
+            orderService.addOrderPartnerPair(orderId, partnerId);
+            //This is basically assigning that order to that partnerId
+            return new ResponseEntity<>("New order-partner pair added successfully", HttpStatus.CREATED);
+        } catch (RuntimeException re) {
+            return new ResponseEntity<>(re.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/get-order-by-id/{orderId}")
     public ResponseEntity<Order> getOrderById(@PathVariable String orderId){
-        Order order= orderService.getOrderById(orderId);
-        //order should be returned with an orderId.
-        return new ResponseEntity<>(order, HttpStatus.CREATED);
+        try {
+            Order order = orderService.getOrderById(orderId);
+            //order should be returned with an orderId.
+            return new ResponseEntity<>(order, HttpStatus.FOUND);
+        } catch (RuntimeException re) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/get-partner-by-id/{partnerId}")
     public ResponseEntity<DeliveryPartner> getPartnerById(@PathVariable String partnerId){
-        DeliveryPartner deliveryPartner = orderService.getPartnerById(partnerId);
-        //deliveryPartner should contain the value given by partnerId
-        return new ResponseEntity<>(deliveryPartner, HttpStatus.CREATED);
+        try {
+            DeliveryPartner deliveryPartner = orderService.getPartnerById(partnerId);
+            //deliveryPartner should contain the value given by partnerId
+            return new ResponseEntity<>(deliveryPartner, HttpStatus.CREATED);
+        } catch (RuntimeException re) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
     }
 
     @GetMapping("/get-order-count-by-partner-id/{partnerId}")

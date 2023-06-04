@@ -1,9 +1,6 @@
 package com.driver;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OrderRepository {
 
@@ -11,9 +8,7 @@ public class OrderRepository {
     private Map<String, DeliveryPartner> deliveryPartners = new HashMap<>();
     private Map<String, List<String>> ordersOfPartner = new HashMap<>();
     public void addOrder(Order order) {
-        if(!orders.containsKey(order.getId())) {
-            orders.put(order.getId(), order);
-        }
+        orders.put(order.getId(), order);
     }
 
     public void addPartner(String partnerId) {
@@ -24,24 +19,28 @@ public class OrderRepository {
         return ordersOfPartner.getOrDefault(partnerId, new ArrayList<>());
     }
 
-    public DeliveryPartner getDeliveryPartner(String partnerId) {
-        return deliveryPartners.get(partnerId);
+    public Optional<DeliveryPartner> getDeliveryPartner(String partnerId) {
+        if(deliveryPartners.containsKey(partnerId)) {
+            return Optional.of(deliveryPartners.get(partnerId));
+        }
+        return Optional.empty();
     }
-
-    public void addDeliveryPartners(String partnerId, DeliveryPartner deliveryPartner) {
-        deliveryPartners.put(partnerId, deliveryPartner);
-    }
-
     public void addOrderPartnerPair(String partnerId, List<String> order) {
         ordersOfPartner.put(partnerId, order);
     }
 
-    public Order getOrderById(String orderId) {
-        return orders.get(orderId);
+    public Optional<Order> getOrderById(String orderId) {
+        if(orders.containsKey(orderId)) {
+            return Optional.of(orders.get(orderId));
+        }
+        return Optional.empty();
     }
 
-    public DeliveryPartner getPartnerById(String partnerId) {
-        return deliveryPartners.get(partnerId);
+    public Optional<DeliveryPartner> getPartnerById(String partnerId) {
+        if(deliveryPartners.containsKey(partnerId)) {
+            return Optional.of(deliveryPartners.get(partnerId));
+        }
+        return Optional.empty();
     }
 
     public List<String> getOrdersByPartnerId(String partnerId) {
@@ -52,8 +51,11 @@ public class OrderRepository {
         return new ArrayList<>(orders.keySet());
     }
 
-    public List<String> getPartnersOfOrders() {
-        return new ArrayList<>(ordersOfPartner.keySet());
+    public Optional<String> getPartnersOfOrders(String orderId) {
+        if(ordersOfPartner.containsKey(orderId)){
+            Optional.of(ordersOfPartner.get(orderId));
+        }
+        return Optional.empty();
     }
 
     public void deletePartnerById(String partnerId) {
@@ -61,7 +63,15 @@ public class OrderRepository {
         ordersOfPartner.remove(partnerId);
     }
 
-    public void removeOrderById(String orderId) {
+    public void addPartners(DeliveryPartner partner) {
+        deliveryPartners.put(partner.getId(), partner);
+    }
+
+    public void deleteOrder(String orderId) {
         orders.remove(orderId);
+    }
+
+    public List<String> getPartnersListOrders() {
+        return new ArrayList<>(ordersOfPartner.keySet());
     }
 }
