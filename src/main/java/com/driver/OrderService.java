@@ -1,14 +1,17 @@
 package com.driver;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class OrderService {
 
-    private OrderRepository orderRepository = new OrderRepository();
+    @Autowired
+    private OrderRepository orderRepository;
 
     public void addOrder(Order order) {
         orderRepository.addOrder(order);
@@ -102,6 +105,7 @@ public class OrderService {
 
         int countOfOrders = 0;
         List<String> orders = orderRepository.getOrdersOfPartner(partnerId);
+        if(orders.isEmpty()) return 0;
         int endTime = timeStringToInteger(time);
         for(String order : orders) {
             Order order1 = orderRepository.getOrderById(order).get();
